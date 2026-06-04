@@ -47,14 +47,16 @@ socket.on('gameJoined', (data) => {
 socket.on('playersUpdated', (game) => {
     if (game) {
         gameData = game;
-        updateLobbyUI();
+        // Only update UI if not in active gameplay
+        if (!isInGame) {
+            updateLobbyUI();
+        }
         refreshLeaderboard();
     }
 });
 
 socket.on('gameStarted', () => {
     goToGameScreen();
-    initializeWord();
     startGameUpdates();
 });
 
