@@ -134,8 +134,9 @@ function renderBoard() {
     // Update current row with current guess
     const tiles = board.querySelectorAll(`[data-row="${currentRowIndex}"]`);
     tiles.forEach((tile, idx) => {
-        tile.textContent = currentGuess[idx] || '';
-        if (currentGuess[idx]) {
+        const letter = currentGuess[idx] || '';
+        tile.textContent = letter;
+        if (letter) {
             tile.classList.add('filled');
         } else {
             tile.classList.remove('filled');
@@ -208,13 +209,13 @@ function generateKeyboard() {
 }
 
 function handleKeyPress(letter) {
-    if (gameComplete || currentGuess.length >= 5) return;
+    if (!isInGame || gameComplete || currentGuess.length >= 5) return;
     currentGuess += letter;
     renderBoard();
 }
 
 function handleBackspace() {
-    if (gameComplete) return;
+    if (!isInGame || gameComplete) return;
     currentGuess = currentGuess.slice(0, -1);
     renderBoard();
 }
