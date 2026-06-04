@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Battle - Competitive Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Screen (Before entering a room) -->
+        <div id="mainScreen" class="screen active">
+            <div class="welcome">
+                <h1>🎮 Wordle Battle</h1>
+                <p>Compete with friends - Finish Wordles with the fewest guesses!</p>
+            </div>
+
+            <div class="name-input-section">
+                <input type="text" id="userName" placeholder="Enter your name" maxlength="20">
+            </div>
+
+            <div class="button-group">
+                <button id="createRoomBtn" class="btn btn-primary">Create Room</button>
+                <button id="joinRoomBtn" class="btn btn-secondary">Join Room</button>
+            </div>
+
+            <!-- Error message -->
+            <div id="mainError" class="error-message"></div>
+        </div>
+
+        <!-- Lobby Screen (Before starting the game) -->
+        <div id="lobbyScreen" class="screen">
+            <div class="lobby-container">
+                <div class="lobby-header">
+                    <h2>🎮 Game Lobby</h2>
+                    <button id="leaveLobbyBtn" class="btn btn-danger btn-small">Leave</button>
+                </div>
+
+                <div class="lobby-content">
+                    <!-- Room Code Section -->
+                    <div class="lobby-section">
+                        <h3>Room Code</h3>
+                        <div class="code-display-large" id="lobbyRoomCode">-</div>
+                        <button id="copyLobbyCodeBtn" class="btn btn-secondary">📋 Copy Code</button>
+                    </div>
+
+                    <!-- Players Section -->
+                    <div class="lobby-section">
+                        <h3>👥 Players Joined (<span id="playerCount">0</span>)</h3>
+                        <div id="lobbyPlayersList" class="players-list">
+                            <!-- Players will be displayed here -->
+                        </div>
+                    </div>
+
+                    <!-- Match Settings Section -->
+                    <div class="lobby-section">
+                        <h3>⚙️ Match Settings</h3>
+                        <div class="match-settings">
+                            <!-- Match settings will be added here -->
+                            <p style="color: #999; font-size: 14px;">Settings coming soon...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lobby-footer">
+                    <button id="startGameBtn" class="btn btn-primary btn-large">Start Game</button>
+                    <p id="ownerOnlyMsg" class="owner-only-msg"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen (Inside a room) -->
+        <div id="gameScreen" class="screen">
+            <div class="game-header">
+                <div class="game-info">
+                    <h2>🎮 Wordle Battle - Room: <span id="roomCode">-</span></h2>
+                    <p id="gameStatus">Word 1 of 5</p>
+                </div>
+                <button id="copyCodeBtn" class="btn btn-small" title="Copy room code">📋 Copy Code</button>
+                <button id="leaveGameBtn" class="btn btn-danger btn-small">Leave</button>
+            </div>
+
+            <div class="game-content">
+                <!-- Leaderboard -->
+                <div class="leaderboard-panel">
+                    <h3>🏆 Leaderboard</h3>
+                    <div id="leaderboard" class="leaderboard-list">
+                        <!-- Players ranked by guesses -->
+                    </div>
+                </div>
+
+                <!-- Game Area -->
+                <div class="game-panel">
+                    <div class="wordle-info">
+                        <span id="guessCount">Guesses: 0/6</span>
+                        <span id="wordNumber">Word 1/5</span>
+                    </div>
+
+                    <!-- Wordle Board -->
+                    <div id="wordleBoard" class="wordle-board">
+                        <!-- Guess tiles will be generated here -->
+                    </div>
+
+                    <!-- Keyboard -->
+                    <div id="keyboard" class="keyboard">
+                        <!-- Keyboard will be generated here -->
+                    </div>
+
+                    <!-- Messages/Notifications -->
+                    <div id="gameMessage" class="game-message"></div>
+
+                    <!-- Game Over Screen -->
+                    <div id="gameOverScreen" class="game-over-screen hidden">
+                        <div class="game-over-content">
+                            <h2 id="gameOverTitle">Game Complete!</h2>
+                            <div id="finalStats" class="final-stats"></div>
+                            <button id="restartGameBtn" class="btn btn-primary">Play Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Join Game Dialog -->
+        <div id="joinDialog" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Join Game Room</h2>
+                    <button class="close-btn" onclick="closeJoinDialog()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="joinCode" placeholder="Enter room code" maxlength="6">
+                    <div id="joinError" class="error-message"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeJoinDialog()">Cancel</button>
+                    <button class="btn btn-primary" id="confirmJoinBtn">Join</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Code Display Dialog -->
+        <div id="roomCodeDialog" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Game Room Created!</h2>
+                </div>
+                <div class="modal-body">
+                    <p>Share this code to invite friends:</p>
+                    <div class="code-display" id="codeDisplay">-</div>
+                    <button class="btn btn-primary" onclick="copyRoomCode()">📋 Copy Code</button>
+                    <p style="margin-top: 20px; font-size: 14px; color: #666;">Compete with friends to complete 5 Wordles with the fewest guesses!</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="goToRoomBtn">Start Game</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="wordle-list.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
