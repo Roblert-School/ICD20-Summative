@@ -122,7 +122,7 @@ io.on('connection', (socket) => {
                 delete games[code];
                 console.log('Game deleted:', code);
             } else {
-                io.to(code).emit('playersUpdated', games[code].players);
+                io.to(code).emit('playersUpdated', games[code]);
             }
         }
         socket.leave(code);
@@ -132,9 +132,16 @@ io.on('connection', (socket) => {
         console.log('User disconnected:', socket.id);
         // Clean up any games where this user was the only player
         Object.keys(games).forEach(code => {
-            games[code].players = games[code].players.filter(p => p.id !== socket.id);
-            if (games[code].players.length === 0) {
+            const game = games[code];
+            const playerWasInGame = game.players.some(p => p.id === socket.id);
+            game.players = game.players.filter(p => p.id !== socket.id);
+            
+            if (game.players.length === 0) {
                 delete games[code];
+                console.log('Game deleted (no players):', code);
+            } else if (playerWasInGame) {
+                // Notify remaining players that someone left
+                io.to(code).emit('playersUpdated', game);
             }
         });
     });
