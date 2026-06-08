@@ -50,8 +50,8 @@ socket.on('playersUpdated', (game) => {
         // Only update UI if not in active gameplay
         if (!isInGame) {
             updateLobbyUI();
+            refreshLeaderboard();
         }
-        refreshLeaderboard();
     }
 });
 
@@ -301,7 +301,6 @@ function nextWord() {
         guessCount = 0;
         currentRowIndex = 0;
         initializeWord();
-        generateKeyboard();
         updateGameStatus();
         refreshLeaderboard();
         savePlayerStats();
